@@ -1,0 +1,105 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Programming\\Projects\\WeatherApi\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{AE7AD6A3-0E03-4EF6-B6A9-0ECE66D0A527}|WeatherApi\\WeatherApi.csproj|d:\\programming\\projects\\weatherapi\\weatherapi\\processmethods\\geospatialprocessingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AE7AD6A3-0E03-4EF6-B6A9-0ECE66D0A527}|WeatherApi\\WeatherApi.csproj|solutionrelative:weatherapi\\processmethods\\geospatialprocessingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AE7AD6A3-0E03-4EF6-B6A9-0ECE66D0A527}|WeatherApi\\WeatherApi.csproj|d:\\programming\\projects\\weatherapi\\weatherapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AE7AD6A3-0E03-4EF6-B6A9-0ECE66D0A527}|WeatherApi\\WeatherApi.csproj|solutionrelative:weatherapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AE7AD6A3-0E03-4EF6-B6A9-0ECE66D0A527}|WeatherApi\\WeatherApi.csproj|d:\\programming\\projects\\weatherapi\\weatherapi\\databasehelper\\postgresqlservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AE7AD6A3-0E03-4EF6-B6A9-0ECE66D0A527}|WeatherApi\\WeatherApi.csproj|solutionrelative:weatherapi\\databasehelper\\postgresqlservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AE7AD6A3-0E03-4EF6-B6A9-0ECE66D0A527}|WeatherApi\\WeatherApi.csproj|d:\\programming\\projects\\weatherapi\\weatherapi\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AE7AD6A3-0E03-4EF6-B6A9-0ECE66D0A527}|WeatherApi\\WeatherApi.csproj|solutionrelative:weatherapi\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AE7AD6A3-0E03-4EF6-B6A9-0ECE66D0A527}|WeatherApi\\WeatherApi.csproj|d:\\programming\\projects\\weatherapi\\weatherapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{AE7AD6A3-0E03-4EF6-B6A9-0ECE66D0A527}|WeatherApi\\WeatherApi.csproj|solutionrelative:weatherapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "GeospatialProcessingService.cs",
+              "DocumentMoniker": "D:\\Programming\\Projects\\WeatherApi\\WeatherApi\\ProcessMethods\\GeospatialProcessingService.cs",
+              "RelativeDocumentMoniker": "WeatherApi\\ProcessMethods\\GeospatialProcessingService.cs",
+              "ToolTip": "D:\\Programming\\Projects\\WeatherApi\\WeatherApi\\ProcessMethods\\GeospatialProcessingService.cs",
+              "RelativeToolTip": "WeatherApi\\ProcessMethods\\GeospatialProcessingService.cs",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAmwDcAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-04T10:03:48.143Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "PostgreSqlService.cs",
+              "DocumentMoniker": "D:\\Programming\\Projects\\WeatherApi\\WeatherApi\\DatabaseHelper\\PostgreSqlService.cs",
+              "RelativeDocumentMoniker": "WeatherApi\\DatabaseHelper\\PostgreSqlService.cs",
+              "ToolTip": "D:\\Programming\\Projects\\WeatherApi\\WeatherApi\\DatabaseHelper\\PostgreSqlService.cs",
+              "RelativeToolTip": "WeatherApi\\DatabaseHelper\\PostgreSqlService.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAMwFAAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-04T09:41:35.301Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "WeatherForecastController.cs",
+              "DocumentMoniker": "D:\\Programming\\Projects\\WeatherApi\\WeatherApi\\Controllers\\WeatherForecastController.cs",
+              "RelativeDocumentMoniker": "WeatherApi\\Controllers\\WeatherForecastController.cs",
+              "ToolTip": "D:\\Programming\\Projects\\WeatherApi\\WeatherApi\\Controllers\\WeatherForecastController.cs",
+              "RelativeToolTip": "WeatherApi\\Controllers\\WeatherForecastController.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAMwBAAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-04T09:38:27.133Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Programming\\Projects\\WeatherApi\\WeatherApi\\Program.cs",
+              "RelativeDocumentMoniker": "WeatherApi\\Program.cs",
+              "ToolTip": "D:\\Programming\\Projects\\WeatherApi\\WeatherApi\\Program.cs",
+              "RelativeToolTip": "WeatherApi\\Program.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAAACQAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-04T09:40:47.959Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\Programming\\Projects\\WeatherApi\\WeatherApi\\appsettings.json",
+              "RelativeDocumentMoniker": "WeatherApi\\appsettings.json",
+              "ToolTip": "D:\\Programming\\Projects\\WeatherApi\\WeatherApi\\appsettings.json",
+              "RelativeToolTip": "WeatherApi\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-03-04T10:06:10.022Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

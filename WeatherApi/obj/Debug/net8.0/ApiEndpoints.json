@@ -1,0 +1,38 @@
+[
+  {
+    "ContainingType": "WeatherApi.Controllers.WeatherForecastController",
+    "Method": "GetTemp",
+    "RelativePath": "WeatherForecast/temperature",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "lat",
+        "Type": "System.Double",
+        "IsRequired": false
+      },
+      {
+        "Name": "lon",
+        "Type": "System.Double",
+        "IsRequired": false
+      },
+      {
+        "Name": "hourOfDay",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.String",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  }
+]
