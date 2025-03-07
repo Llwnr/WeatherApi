@@ -27,22 +27,24 @@ namespace WeatherApi.Helper {
 				}
 			}
 			
-			Console.WriteLine("Trying to insert to postgis");
+
 			Console.WriteLine("Time: " + time);
-			Process raster2Sql = new Process();
-			raster2Sql.StartInfo.FileName = "cmd.exe";
+			
+			Process process = new Process();
+			process.StartInfo.FileName = "cmd.exe";
 			string append = tableExists ? " -a " : "";
-			raster2Sql.StartInfo.Arguments = $"/C raster2pgsql -s 4326 -I -C -M -F {append}{geoTiffPath} public.{tableName}";
-			raster2Sql.StartInfo.UseShellExecute = false;
-			raster2Sql.StartInfo.RedirectStandardOutput = true;
-			
-			raster2Sql.Start();
-			using (StreamWriter file = new StreamWriter(sqlFileOutput)) {
-				await file.WriteAsync(await raster2Sql.StandardOutput.ReadToEndAsync());
-			}
-			
-			string pgsqlCmd = $@"psql -U postgres -h localhost -d weather -p 5432 -f {sqlFileOutput}";
-			await ProcessExecution.ExecuteCommand(pgsqlCmd, "livewithme0");
+
+// Set up the command with proper password handling for the pipe
+			process.StartInfo.Arguments = $"/C set \"PGPASSWORD=livewithme0\" && " +
+			                              $"raster2pgsql -s 4326 -I -C -M -F {append}{geoTiffPath} public.{tableName} | " +
+			                              $"psql -U postgres -h localhost -d weather -p 5432";
+
+			process.StartInfo.UseShellExecute = false;
+			process.StartInfo.RedirectStandardOutput = false;
+
+// Execute the command
+			process.Start();
+			await process.WaitForExitAsync();
 
 			string addTimeColumnQuery = $@"
 				ALTER TABLE IF EXISTS public.{tableName}

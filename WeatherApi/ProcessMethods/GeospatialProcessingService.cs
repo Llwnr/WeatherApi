@@ -34,7 +34,7 @@ public class GeospatialProcessingService{
         int hoursDifference = (int)Math.Ceiling((latestDatabaseTimestamp - currentTimestamp) / 3600.0);
         
         if (hoursDifference < totalForecastHours){
-            int filesToDownload = totalForecastHours - hoursDifference;
+            int filesToDownload = Math.Min(totalForecastHours - hoursDifference, totalForecastHours);
             Console.WriteLine($"Forecast data is incomplete. Downloading {filesToDownload} additional files.");
             return filesToDownload;
         }
@@ -45,7 +45,12 @@ public class GeospatialProcessingService{
 
     public async Task DownloadAndProcessBatch(){
         DateTime? latestForecastData = GetLatestForecastTimestamp()?.ToUniversalTime();
-        DateTime startTime = latestForecastData ?? DateTime.UtcNow.Subtract(TimeSpan.FromHours(1));
+        DateTime currTime = DateTime.UtcNow.Subtract(TimeSpan.FromHours(1));
+        DateTime startTime = latestForecastData ?? currTime;
+        //Always use the latest time data
+        if (DateTime.Compare(currTime, startTime) == 1){
+            startTime = currTime;
+        }
         
         List<string> urls = UrlService.GenerateForecastUrls(startTime, GetNumOfFilesToDownload());
         foreach (var url in urls){
@@ -61,6 +66,6 @@ public class GeospatialProcessingService{
         await GdalProcesses.ConvertTifToProperSpatialRef(filePath, "out.tif", "outepsg.tif");
         DateTime time = await GdalProcesses.GetDateTime(filePath, fileName);
 
-        await _dbService.AddGeoTiffToPostGIS($"./Data\\outepsg.tif", time, "weather_raster");
+        await _dbService.AddGeoTiffToPostGIS($"./Data\\outepsg.tif", time, "weather_raster_test");
     }
 }

@@ -36,3 +36,4 @@ D:\Programming\Projects\WeatherApi\WeatherApi\obj\Debug\net8.0\ref\WeatherApi.dl
 D:\Programming\Projects\WeatherApi\WeatherApi\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 D:\Programming\Projects\WeatherApi\WeatherApi\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
 D:\Programming\Projects\WeatherApi\WeatherApi\bin\Debug\net8.0\Npgsql.dll
+D:\Programming\Projects\WeatherApi\WeatherApi\obj\Debug\net8.0\WeatherApi.sourcelink.json

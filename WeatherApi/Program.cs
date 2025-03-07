@@ -30,7 +30,12 @@ app.MapControllers();
 
 PostgreSqlService dbService = new PostgreSqlService(builder.Configuration.GetConnectionString("PostgresqlConnection"));
 GeospatialProcessingService geoService = new GeospatialProcessingService(dbService);
-await geoService.DownloadAndProcessBatch();
+try{
+    await geoService.DownloadAndProcessBatch();
+}
+catch (Exception e){
+    Console.WriteLine("GeoService Error: " + e.Message);
+}
 
 app.Run();
 
