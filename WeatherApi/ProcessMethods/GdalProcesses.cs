@@ -23,13 +23,23 @@ namespace WeatherApi.ProcessMethods {
 		}
 
 		public static async Task ConvertToGeoTiff(string inputFilePath, string outputFilePath) {
-			string argument = $"gdal_translate -of GTiff -r bilinear {inputFilePath} {outputFilePath}";
-			await ProcessExecution.ExecuteCommand(argument);
+			string argument = $"gdal_translate -of GTiff -r bilinear -co NUM_THREADS=ALL_CPUS {inputFilePath} {outputFilePath}";
+			try{
+				await ProcessExecution.ExecuteCommand(argument);
+			}
+			catch (Exception ex){
+				Console.WriteLine("Converting to geotiff error: " + ex.Message);
+			}
 		}
 
 		public static async Task ConvertTifToProperSpatialRef(string inputFilePath, string outputFilePath) {
-			string argument = $"gdalwarp -t_srs EPSG:4326 {inputFilePath} {outputFilePath}";
-			await ProcessExecution.ExecuteCommand(argument);
+			string argument = $"gdalwarp -t_srs EPSG:4326 -co NUM_THREADS=ALL_CPUS {inputFilePath} {outputFilePath}";
+			try{
+				await ProcessExecution.ExecuteCommand(argument);
+			}
+			catch (Exception ex){
+				Console.WriteLine("Converting to correct spatial reference error: " + ex.Message);
+			}
 		}
 
 		public static async Task<DateTime> GetDateTime(string inputFilePath) {

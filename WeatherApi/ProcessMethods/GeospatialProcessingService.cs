@@ -1,4 +1,5 @@
-using System.Security.Cryptography.X509Certificates;
+using System.Diagnostics;
+using System.IO;
 using WeatherApi.Helper;
 
 namespace WeatherApi.ProcessMethods;
@@ -10,8 +11,9 @@ public class GeospatialProcessingService{
         _dbService = service;
     }
 
-    DateTime? GetLatestForecastTimestamp(string tableName){
-        string query = $"SELECT MAX(time) FROM {tableName}";
+    async Task<DateTime?> GetLatestForecastTimestamp(string tableName){
+        if (!(await _dbService.TableExists(tableName))) return null;
+        string query = $"SELECT MAX(time) FROM public.{tableName}";
         string? date =_dbService.GetData(query);
         if (string.IsNullOrEmpty(date)) return null;
         return DateTime.Parse(date);
@@ -19,10 +21,10 @@ public class GeospatialProcessingService{
     
     // If date in database is outdated, returns number of future forecast data to download
     // Always tries to have forecast data 12 hours from current time
-    int GetNumOfFilesToDownload(){
+    async Task<int> GetNumOfFilesToDownload(){
         int totalForecastHours = UrlService.NumOfFiles;
 
-        DateTime? latestForecastDate = GetLatestForecastTimestamp("public.weather_raster_test");
+        DateTime? latestForecastDate = await GetLatestForecastTimestamp("weather_raster_test");
         //If no data found, download full number of files
         if (latestForecastDate == null){
             Console.WriteLine($"No existing forecast data. Downloading {totalForecastHours + 1} files.");
@@ -34,7 +36,7 @@ public class GeospatialProcessingService{
         
         int hoursDifference = (int)Math.Ceiling((latestDatabaseTimestamp - currentTimestamp) / 3600.0);
         
-        if (hoursDifference < totalForecastHours){
+        if (hoursDifference+1 < totalForecastHours){
             int filesToDownload = Math.Min(totalForecastHours - hoursDifference, totalForecastHours);
             Console.WriteLine($"Forecast data is incomplete. Downloading {filesToDownload} additional files.");
             return filesToDownload;
@@ -46,7 +48,7 @@ public class GeospatialProcessingService{
 
     public async Task DownloadAndProcessBatch(){
         try{
-            DateTime? latestForecastData = GetLatestForecastTimestamp("public.weather_raster_test")?.ToUniversalTime();
+            DateTime? latestForecastData = (await GetLatestForecastTimestamp("weather_raster_test"))?.ToUniversalTime();
             DateTime currTime = DateTime.UtcNow.Subtract(TimeSpan.FromHours(1));
             DateTime startTime = latestForecastData ?? currTime;
             //Always use the latest time data
@@ -54,21 +56,31 @@ public class GeospatialProcessingService{
                 startTime = currTime;
             }
 
-            List<string> urls = UrlService.GenerateForecastUrls(startTime, GetNumOfFilesToDownload());
-
-            for (int i = 0; i < urls.Count; i++){
-                await DownloadAndProcess(urls[i]);
+            List<string> urls = UrlService.GenerateForecastUrls(startTime, await GetNumOfFilesToDownload());
+            List<string> filePaths = new List<string>();
+            foreach (var url in urls){
+                string timestampFolder = ExtractDateTimeFromUrl(url).ToString("yyyyMMdd_HHmmss");
+                filePaths.Add(Path.Combine("./Data", timestampFolder));
             }
+            //After processing, insert to postGIS in bulk
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            await _dbService.EnsureTableExists("weather_raster_test");
+            await Parallel.ForEachAsync(urls.Zip(filePaths), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+                async (pair, cancellationToken) => {
+                    await DownloadAndProcess(pair.First, pair.Second);
+                });
+            sw.Stop();
+            Console.WriteLine("Time taken: " + sw.ElapsedMilliseconds);
         }
         catch (Exception ex){
-            Console.WriteLine($"Batch download and processing failed: {ex.Message}");
+            Console.WriteLine($"Batch processing failed: {ex.Message}");
         }
     }
 
-    async Task DownloadAndProcess(string url){
-        string timestampFolder = ExtractDateTimeFromUrl(url).ToString("yyyyMMdd_HHmmss");
-        string filePath = Path.Combine("./Data", timestampFolder);
+    async Task DownloadAndProcess(string url, string filePath){
         try{
+            Console.WriteLine("Creating directory at: " + filePath);
             Directory.CreateDirectory(filePath);
 
             string gribFilePath = Path.Combine(filePath, "data.grib2");
@@ -78,12 +90,20 @@ public class GeospatialProcessingService{
             await GdalProcesses.DownloadAutomatic(url, gribFilePath);
             await GdalProcesses.ConvertToGeoTiff(gribFilePath, tifFilePath);
             await GdalProcesses.ConvertTifToProperSpatialRef(tifFilePath, epsgFilePath);
-            DateTime time = await GdalProcesses.GetDateTime(gribFilePath);
             
-            await _dbService.AddGeoTiffToPostGIS(epsgFilePath, time, "weather_raster_test");
+            DateTime time = ExtractDateTimeFromUrl(url);
+            await _dbService.AddGeoTiffToPostGis(epsgFilePath, time, "weather_raster_test");
+
+            CleanupProcessedFiles(new List<string>{tifFilePath,epsgFilePath});
         }
         catch (Exception e){
             Console.WriteLine("Processing Error: " + e.Message);
+        }
+
+        void CleanupProcessedFiles(List<string> files){
+            foreach (var file in files){
+                if(File.Exists(file)) File.Delete(file);
+            }
         }
     }
     
