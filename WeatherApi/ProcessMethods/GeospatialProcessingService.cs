@@ -68,18 +68,23 @@ public class GeospatialProcessingService{
     async Task DownloadAndProcess(string url){
         string timestampFolder = ExtractDateTimeFromUrl(url).ToString("yyyyMMdd_HHmmss");
         string filePath = Path.Combine("./Data", timestampFolder);
-        Directory.CreateDirectory(filePath);
-        
-        string gribFilePath = Path.Combine(filePath, "data.grib2");
-        string tifFilePath = Path.Combine(filePath, "geoTiff.tif");
-        string epsgFilePath = Path.Combine(filePath, "epsgGeoTiff.tif");
-        
-        await GdalProcesses.DownloadAutomatic(url, gribFilePath);
-        await GdalProcesses.ConvertToGeoTiff(gribFilePath, tifFilePath);
-        await GdalProcesses.ConvertTifToProperSpatialRef(tifFilePath, epsgFilePath);
-        DateTime time = await GdalProcesses.GetDateTime(gribFilePath);
+        try{
+            Directory.CreateDirectory(filePath);
 
-        await _dbService.AddGeoTiffToPostGIS(epsgFilePath, time, "weather_raster_test");
+            string gribFilePath = Path.Combine(filePath, "data.grib2");
+            string tifFilePath = Path.Combine(filePath, "geoTiff.tif");
+            string epsgFilePath = Path.Combine(filePath, "epsgGeoTiff.tif");
+
+            await GdalProcesses.DownloadAutomatic(url, gribFilePath);
+            await GdalProcesses.ConvertToGeoTiff(gribFilePath, tifFilePath);
+            await GdalProcesses.ConvertTifToProperSpatialRef(tifFilePath, epsgFilePath);
+            DateTime time = await GdalProcesses.GetDateTime(gribFilePath);
+            
+            await _dbService.AddGeoTiffToPostGIS(epsgFilePath, time, "weather_raster_test");
+        }
+        catch (Exception e){
+            Console.WriteLine("Processing Error: " + e.Message);
+        }
     }
     
     public static DateTime ExtractDateTimeFromUrl(string url){

@@ -11,7 +11,7 @@ namespace WeatherApi.Helper {
 			this.connString = connString;
 		}
 
-		public async Task AddGeoTiffToPostGIS(string geoTiffPath, DateTime time, string tableName) {
+		public async Task AddGeoTiffToPostGIS(string inputFilePath, DateTime time, string tableName) {
 			string sqlFileOutput = "./Data\\output.sql";
 
 			bool tableExists = false;
@@ -36,7 +36,7 @@ namespace WeatherApi.Helper {
 
 // Set up the command with proper password handling for the pipe
 			process.StartInfo.Arguments = $"/C set \"PGPASSWORD=livewithme0\" && " +
-			                              $"raster2pgsql -s 4326 -I -C -M -F {append}{geoTiffPath} public.{tableName} | " +
+			                              $"raster2pgsql -s 4326 -I -C -M -F {append}{inputFilePath} public.{tableName} | " +
 			                              $"psql -U postgres -h localhost -d weather -p 5432";
 
 			process.StartInfo.UseShellExecute = false;
