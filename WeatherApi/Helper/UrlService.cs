@@ -14,20 +14,19 @@ public static class UrlService{
         string baseUrl = _configuration.GetSection("NomadsUrlConfig:BaseUrl").Value;
         string directoryFormat = _configuration.GetSection("NomadsUrlConfig:DirectoryFormat").Value;
         string fileFormat = _configuration.GetSection("NomadsUrlConfig:FileFormat").Value;
-        
-        string currentTimestamp = startingTime.ToString("yyyyMMdd");
-        string quaterlyHour = "00";//For now always start from first hour of the new day
+
+       string quarterlyHour = "00";//For now always start from first hour of the new day
 
         parameters ??= _configuration.GetSection("NomadsUrlConfig:DefaultParameters").Get<List<String>>();
         levels ??= _configuration.GetSection("NomadsUrlConfig:DefaultLevels").Get<List<String>>();
 
-        int startingHour = startingTime.Hour;
+        int startingHour = GetStartingHour(startingTime);
         for (int i = startingHour+1; i <= numOfUrls+startingHour; i++){
             string dir = directoryFormat
-                .Replace("{date}", currentTimestamp)
-                .Replace("{hour}", quaterlyHour);
+                .Replace("{date}", DateTime.UtcNow.ToString("yyyyMMdd"))
+                .Replace("{hour}", quarterlyHour);
             string filename = fileFormat
-                .Replace("{hour}", quaterlyHour)
+                .Replace("{hour}", quarterlyHour)
                 .Replace("{forecastHour}", i.ToString("D3"));
             string finalUrl = $"{baseUrl}?dir={dir}&file={filename}";
 
@@ -41,6 +40,14 @@ public static class UrlService{
             fileUrls.Add(finalUrl);
         }
         return fileUrls;
+    }
+
+    static int GetStartingHour(DateTime startingForecastHour){
+        DateTime currentDate = DateTime.UtcNow;
+        DateTime currentDay = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, 0, 0, 0);
+        
+        TimeSpan hourDiff = startingForecastHour - currentDay;
+        return (int)hourDiff.TotalHours;
     }
     
     static string GetQuaterlyHours(DateTime time){

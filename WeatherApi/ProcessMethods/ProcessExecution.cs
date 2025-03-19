@@ -1,11 +1,4 @@
 ﻿using System.Diagnostics;
-
-namespace System.Methods {
-	public static class ProcessExecution {
-
-	}
-}
-
 namespace WeatherApi.ProcessMethods {
 	public static class ProcessExecution {
 		public static async Task ExecuteCommand(string command) {

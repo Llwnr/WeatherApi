@@ -26,14 +26,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Launch Settings Profile.WeatherApi: IIS Express.executor": "Run",
-    ".NET Launch Settings Profile.WeatherApi: https.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "ignore.virus.scanning.warn.message": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Launch Settings Profile.WeatherApi: IIS Express.executor&quot;: &quot;Run&quot;,
+    &quot;.NET Launch Settings Profile.WeatherApi: https.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected=".NET Launch Settings Profile.WeatherApi: https">
     <configuration name="WeatherApi: IIS Express" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/WeatherApi/WeatherApi.csproj" />
@@ -85,24 +85,5 @@
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/WeatherApi/Controllers/WeatherForecastController.cs</url>
-          <line>16</line>
-          <properties documentPath="D:\Programming\Projects\WeatherApi\WeatherApi\Controllers\WeatherForecastController.cs" containingFunctionPresentation="Method 'GetTemp'">
-            <startOffsets>
-              <option value="483" />
-            </startOffsets>
-            <endOffsets>
-              <option value="644" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
