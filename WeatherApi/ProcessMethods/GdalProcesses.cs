@@ -91,8 +91,8 @@ namespace WeatherApi.ProcessMethods {
 					// string output = await process.StandardOutput.ReadToEndAsync();
 					// string error = await process.StandardError.ReadToEndAsync();
 					
-					Console.WriteLine("Output: " + output);
-					Console.WriteLine("Error: " + error);
+					// Console.WriteLine("Output: " + output);
+					// Console.WriteLine("Error: " + error);
 					
 					await process.WaitForExitAsync();
 				}
