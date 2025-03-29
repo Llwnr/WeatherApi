@@ -43,17 +43,17 @@ namespace WeatherApi.ProcessMethods {
 		}
 		
 		public static async Task ExtractBand(string inputFilePath, string outputFilePath, int band){
-			string extractionArgument = $"gdal_translate -b {band} -tr 0.1 0.1 -r cubicspline -co NUM_THREADS=ALL_CPUS {inputFilePath} {outputFilePath}";
+			string extractionArgument = $"gdalwarp -t_srs EPSG:3857 -te -180 -85 180 85 -te_srs EPSG:4326 -b {band} -r bilinear -co NUM_THREADS=8 {inputFilePath} {outputFilePath}";
 			try{
 				await ProcessExecution.ExecuteCommand(extractionArgument);
 			}
 			catch (Exception ex){
-				Console.WriteLine("Colorizing error: " + ex.Message);
+				Console.WriteLine("Extraction error: " + ex.Message);
 			}
 		}
 		
 		public static async Task Colorize(string inputFilePath, string outputFilePath, string colormapFilePath){
-			string argument = $"gdaldem color-relief -co NUM_THREADS=ALL_CPUS -co COMPRESS=DEFLATE -co TILED=YES {inputFilePath} {colormapFilePath} {outputFilePath}";
+			string argument = $"gdaldem color-relief -co NUM_THREADS=8 -of COG -co BLOCKSIZE=256 -co COMPRESS=DEFLATE -co RESAMPLING=BILINEAR -co OVERVIEWS=AUTO -co PREDICTOR=2 {inputFilePath} {colormapFilePath} {outputFilePath}";
 			try{
 				await ProcessExecution.ExecuteCommand(argument);
 			}

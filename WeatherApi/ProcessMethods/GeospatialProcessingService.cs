@@ -90,7 +90,7 @@ public class GeospatialProcessingService{
             await GdalProcesses.UpdateIndex(colorizedRainFilePath, "precipitation_mosaic");
             
             DateTime time = ExtractDateTimeFromUrl(url);
-            // await _dbService.AddGeoTiffToPostGis(epsgFilePath, time, _tableName);
+            await _dbService.AddGeoTiffToPostGis(epsgFilePath, time, _tableName);
 
             CleanupProcessedFiles(new List<string>{tifFilePath, epsgFilePath, tmpFilePath, windspeedFilePath, rainFilePath});
         }
