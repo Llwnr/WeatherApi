@@ -45,6 +45,7 @@ public class GeospatialProcessingService{
         string tmpFileDir = "Temperature";
         string precipFileDir = "Precipitation";
         string windFileDir = "WindGust";
+        string uVFileDir = "UV_Wind";
         
         string timestampName = ExtractDateTimeFromUrl(url).ToString("yyyyMMdd_HHmmss");
         
@@ -64,13 +65,17 @@ public class GeospatialProcessingService{
         string colorizedWindspeedFilePath = Path.Combine(filePath + $"/{windFileDir}", $"windSpeed_colorized_{timestampName}.tif");
         
         string rainFilePath = Path.Combine(filePath, $"precip_{timestampName}.tif");
+        string rainFilePathScaled = Path.Combine(filePath, $"precipScaled_{timestampName}.tif");
         string colorizedRainFilePath = Path.Combine(filePath + $"/{precipFileDir}", $"precip_colorized_{timestampName}.tif");
-        
+
+        string uvWindFilePath = Path.Combine(filePath + $"/{uVFileDir}", $"uvWind_{timestampName}.grib2");
+        string postGisFilePath = Path.Combine(filePath, $"3banddata_{timestampName}.tif");
         try{
             Directory.CreateDirectory(filePath);
             Directory.CreateDirectory(Path.Combine(filePath, tmpFileDir));
             Directory.CreateDirectory(Path.Combine(filePath, windFileDir));
             Directory.CreateDirectory(Path.Combine(filePath, precipFileDir));
+            Directory.CreateDirectory(Path.Combine(filePath, uVFileDir));
             
             await GdalProcesses.DownloadAutomatic(url, gribFilePath);
             await GdalProcesses.ConvertToGeoTiff(gribFilePath, tifFilePath);
@@ -81,18 +86,24 @@ public class GeospatialProcessingService{
             await GdalProcesses.Colorize(windspeedFilePath, colorizedWindspeedFilePath, windspeedColorMap);
             await GdalProcesses.UpdateIndex(colorizedWindspeedFilePath, "windgust_mosaic");
             //Extract and colorize temperature map
-            await GdalProcesses.ExtractBand(epsgFilePath, tmpFilePath, 2);
+            await GdalProcesses.ExtractBand(epsgFilePath, tmpFilePath, 3);
             await GdalProcesses.Colorize(tmpFilePath, colorizedTmpFilePath, temperatureColorMap);
             await GdalProcesses.UpdateIndex(colorizedTmpFilePath, "temperature_mosaic");
             //Extract and colorize precipitation
-            await GdalProcesses.ExtractBand(epsgFilePath, rainFilePath, 3);
-            await GdalProcesses.Colorize(rainFilePath, colorizedRainFilePath, rainColorMap);
+            await GdalProcesses.ExtractBand(epsgFilePath, rainFilePath, 6);
+            await GdalProcesses.Scale(rainFilePath, rainFilePathScaled, "-scale 0 0.016 0 60");
+            await GdalProcesses.Colorize(rainFilePathScaled, colorizedRainFilePath, rainColorMap);
             await GdalProcesses.UpdateIndex(colorizedRainFilePath, "precipitation_mosaic");
             
+            //Extract U V of wind for directions
+            await GdalProcesses.ExtractBand(gribFilePath, uvWindFilePath, "-b 4 -b 5", true);
+            //Extract bands
+            await GdalProcesses.ExtractBand(gribFilePath, postGisFilePath, "-b 1 -b 3 -b 6");
+            
             DateTime time = ExtractDateTimeFromUrl(url);
-            await _dbService.AddGeoTiffToPostGis(epsgFilePath, time, _tableName);
+            await _dbService.AddGeoTiffToPostGis(postGisFilePath, time, _tableName);
 
-            CleanupProcessedFiles(new List<string>{tifFilePath, epsgFilePath, tmpFilePath, windspeedFilePath, rainFilePath});
+            CleanupProcessedFiles(new List<string>{tifFilePath, postGisFilePath, epsgFilePath, tmpFilePath, windspeedFilePath, rainFilePath, rainFilePathScaled});
         }
         catch (Exception e){
             Console.WriteLine("Download and process Error: " + e.Message);

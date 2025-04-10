@@ -1,4 +1,9 @@
-0.1  146 208 252
-3  74 107 226
-7  246 89 117
-11 250 249 53
+# Approximated Zoom Earth Precipitation Color Scale
+# Rate(mm/hr)   R    G    B   
+0 255 255 255
+0.1         160  240  240  # Very Light Rain (>0.1 to 0.5) - Pale Cyan/Aqua
+1.5         0    200  255  # Light Rain (0.5 to 1.5) - Light Sky Blue
+6.0         0    150  255  # Light-Moderate Rain (1.5 to 3) - Deeper Sky Blue
+12        255  170  0    # Very Heavy Rain (25 to 50) - Orange
+25        255  50   0    # Intense Rain (50 to 100) - Red-Orange
+50       230  0    0    # Extreme Rain (>= 100) - Red

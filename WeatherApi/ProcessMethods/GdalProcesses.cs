@@ -6,7 +6,7 @@ namespace WeatherApi.ProcessMethods {
 			
 			using (HttpClient client = new HttpClient()) {
 				try{
-					client.Timeout = TimeSpan.FromSeconds(20);
+					client.Timeout = TimeSpan.FromSeconds(30);
 					HttpResponseMessage res = await client.GetAsync(url);
 					res.EnsureSuccessStatusCode();
 
@@ -23,7 +23,7 @@ namespace WeatherApi.ProcessMethods {
 		}
 
 		public static async Task ConvertToGeoTiff(string inputFilePath, string outputFilePath) {
-			string argument = $"gdal_translate -b 1 -b 3 -b 4 -of GTiff -r bilinear -co NUM_THREADS=ALL_CPUS {inputFilePath} {outputFilePath}";
+			string argument = $"gdal_translate -of GTiff -r cubicspline -tr 0.16 0.16 -co NUM_THREADS=ALL_CPUS {inputFilePath} {outputFilePath}";
 			try{
 				await ProcessExecution.ExecuteCommand(argument);
 			}
@@ -32,10 +32,15 @@ namespace WeatherApi.ProcessMethods {
 			}
 		}
 
-		public static async Task ConvertTifToProperSpatialRef(string inputFilePath, string outputFilePath) {
-			string argument = $"gdalwarp -t_srs EPSG:4326 -co NUM_THREADS=ALL_CPUS {inputFilePath} {outputFilePath}";
+		public static async Task ConvertTifToProperSpatialRef(string inputFilePath, string outputFilePath){
+			string dataDir = "./Data";
+			string temporaryFilePath = Path.Combine(dataDir, Guid.NewGuid().ToString());
+			string argument1 = $"gdal_translate -a_srs EPSG:4326 {inputFilePath} {temporaryFilePath}.tif";
+			string argument2 = $"gdalwarp -s_srs EPSG:4326 -t_srs EPSG:3857 -co NUM_THREADS=ALL_CPUS {temporaryFilePath}.tif {outputFilePath}";
 			try{
-				await ProcessExecution.ExecuteCommand(argument);
+				await ProcessExecution.ExecuteCommand(argument1);
+				await ProcessExecution.ExecuteCommand(argument2);
+				if(File.Exists(temporaryFilePath+".tif")) File.Delete(temporaryFilePath+".tif");
 			}
 			catch (Exception ex){
 				Console.WriteLine("Converting to correct spatial reference error: " + ex.Message);
@@ -43,7 +48,30 @@ namespace WeatherApi.ProcessMethods {
 		}
 		
 		public static async Task ExtractBand(string inputFilePath, string outputFilePath, int band){
-			string extractionArgument = $"gdalwarp -t_srs EPSG:3857 -te -180 -85 180 85 -te_srs EPSG:4326 -b {band} -r bilinear -co NUM_THREADS=8 {inputFilePath} {outputFilePath}";
+			string extractionArgument = $"gdal_translate -b {band} -r bilinear -co NUM_THREADS=8 {inputFilePath} {outputFilePath}";
+			try{
+				await ProcessExecution.ExecuteCommand(extractionArgument);
+			}
+			catch (Exception ex){
+				Console.WriteLine("Extraction error: " + ex.Message);
+			}
+		}
+		
+		public static async Task ExtractBand(string inputFilePath, string outputFilePath, string band, bool toGrib = false){
+			string extractionArgument = $"gdal_translate {band} {inputFilePath} {outputFilePath}";
+			if (toGrib){
+				extractionArgument += " -co DATA_ENCODING=COMPLEX_PACKING";
+			}
+			try{
+				await ProcessExecution.ExecuteCommand(extractionArgument);
+			}
+			catch (Exception ex){
+				Console.WriteLine("Extraction error: " + ex.Message);
+			}
+		}
+
+		public static async Task Scale(string inputFilePath, string outputFilePath, string scaleArgs){
+			string extractionArgument = $"gdal_translate {scaleArgs} -co NUM_THREADS=8 {inputFilePath} {outputFilePath}";
 			try{
 				await ProcessExecution.ExecuteCommand(extractionArgument);
 			}
@@ -53,7 +81,7 @@ namespace WeatherApi.ProcessMethods {
 		}
 		
 		public static async Task Colorize(string inputFilePath, string outputFilePath, string colormapFilePath){
-			string argument = $"gdaldem color-relief -co NUM_THREADS=8 -of COG -co BLOCKSIZE=256 -co COMPRESS=DEFLATE -co RESAMPLING=BILINEAR -co OVERVIEWS=AUTO -co PREDICTOR=2 {inputFilePath} {colormapFilePath} {outputFilePath}";
+			string argument = $"gdaldem color-relief -co NUM_THREADS=8 -of COG -co COMPRESS=DEFLATE -co RESAMPLING=BILINEAR -co OVERVIEWS=AUTO -co PREDICTOR=2 {inputFilePath} {colormapFilePath} {outputFilePath}";
 			try{
 				await ProcessExecution.ExecuteCommand(argument);
 			}
