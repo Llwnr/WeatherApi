@@ -36,5 +36,4 @@ public class WeatherForecastController : ControllerBase{
             ";
         return _dbService.GetData(query);
     }
-
 }

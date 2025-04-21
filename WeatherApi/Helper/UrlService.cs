@@ -14,12 +14,9 @@ public static class UrlService{
         string baseUrl = _configuration.GetSection("NomadsUrlConfig:BaseUrl").Value;
         string directoryFormat = _configuration.GetSection("NomadsUrlConfig:DirectoryFormat").Value;
         string fileFormat = _configuration.GetSection("NomadsUrlConfig:FileFormat").Value;
-
-       string quarterlyHour = "00";//For now always start from first hour of the new day
-
+        string quarterlyHour = "00";//For now always start from first hour of the new day
         parameters ??= _configuration.GetSection("NomadsUrlConfig:DefaultParameters").Get<List<String>>();
         levels ??= _configuration.GetSection("NomadsUrlConfig:DefaultLevels").Get<List<String>>();
-
         int startingHour = GetStartingHour(startingTime);
         for (int i = startingHour+1; i <= numOfUrls+startingHour; i++){
             string dir = directoryFormat

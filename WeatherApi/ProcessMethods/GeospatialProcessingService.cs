@@ -69,6 +69,8 @@ public class GeospatialProcessingService{
         string colorizedRainFilePath = Path.Combine(filePath + $"/{precipFileDir}", $"precip_colorized_{timestampName}.tif");
 
         string uvWindFilePath = Path.Combine(filePath + $"/{uVFileDir}", $"uvWind_{timestampName}.grib2");
+        string uvWindRegriddedPath = Path.Combine(filePath + $"/{uVFileDir}", $"uvWindRegrid_{timestampName}.grib2");
+        string uvJSONFilePath = Path.Combine(filePath + $"/{uVFileDir}", $"uvWind_{timestampName}.json");
         string postGisFilePath = Path.Combine(filePath, $"3banddata_{timestampName}.tif");
         try{
             Directory.CreateDirectory(filePath);
@@ -97,13 +99,18 @@ public class GeospatialProcessingService{
             
             //Extract U V of wind for directions
             await GdalProcesses.ExtractBand(gribFilePath, uvWindFilePath, "-b 4 -b 5", true);
+            //Regrid the uvWind file for smaller size
+            await GdalProcesses.RegridResolution(uvWindFilePath, uvWindRegriddedPath);
+            //Take the extracted file and convert into json
+            await GdalProcesses.ConvertToJson(uvWindRegriddedPath, uvJSONFilePath);
+            
             //Extract bands
             await GdalProcesses.ExtractBand(gribFilePath, postGisFilePath, "-b 1 -b 3 -b 6");
             
             DateTime time = ExtractDateTimeFromUrl(url);
             await _dbService.AddGeoTiffToPostGis(postGisFilePath, time, _tableName);
 
-            CleanupProcessedFiles(new List<string>{tifFilePath, postGisFilePath, epsgFilePath, tmpFilePath, windspeedFilePath, rainFilePath, rainFilePathScaled});
+            CleanupProcessedFiles(new List<string>{tifFilePath, postGisFilePath, epsgFilePath, tmpFilePath, windspeedFilePath, rainFilePath, rainFilePathScaled, uvWindFilePath, uvWindRegriddedPath});
         }
         catch (Exception e){
             Console.WriteLine("Download and process Error: " + e.Message);

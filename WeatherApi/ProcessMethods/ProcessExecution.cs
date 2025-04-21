@@ -20,7 +20,7 @@ namespace WeatherApi.ProcessMethods {
 				await process.WaitForExitAsync();
 
 				if (!string.IsNullOrEmpty(error)){
-					Console.WriteLine("Errors: " + error + "\nArgument: " + processInfo.Arguments);
+					Console.WriteLine("Errors: " + "\nArgument: " + processInfo.Arguments);
 				}
 
 				if (process.ExitCode != 0) {

@@ -23,7 +23,7 @@ namespace WeatherApi.ProcessMethods {
 		}
 
 		public static async Task ConvertToGeoTiff(string inputFilePath, string outputFilePath) {
-			string argument = $"gdal_translate -of GTiff -r cubicspline -tr 0.16 0.16 -co NUM_THREADS=ALL_CPUS {inputFilePath} {outputFilePath}";
+			string argument = $"gdal_translate -of GTiff -r cubicspline -tr 0.24 0.24 -co NUM_THREADS=ALL_CPUS {inputFilePath} {outputFilePath}";
 			try{
 				await ProcessExecution.ExecuteCommand(argument);
 			}
@@ -47,15 +47,6 @@ namespace WeatherApi.ProcessMethods {
 			}
 		}
 		
-		public static async Task ExtractBand(string inputFilePath, string outputFilePath, int band){
-			string extractionArgument = $"gdal_translate -b {band} -r bilinear -co NUM_THREADS=8 {inputFilePath} {outputFilePath}";
-			try{
-				await ProcessExecution.ExecuteCommand(extractionArgument);
-			}
-			catch (Exception ex){
-				Console.WriteLine("Extraction error: " + ex.Message);
-			}
-		}
 		
 		public static async Task ExtractBand(string inputFilePath, string outputFilePath, string band, bool toGrib = false){
 			string extractionArgument = $"gdal_translate {band} {inputFilePath} {outputFilePath}";
@@ -79,14 +70,47 @@ namespace WeatherApi.ProcessMethods {
 				Console.WriteLine("Extraction error: " + ex.Message);
 			}
 		}
-		
+		public static async Task ExtractBand(string inputFilePath, string outputFilePath, int band){
+			string extractionArgument = $"gdal_translate -b {band} -r bilinear -co NUM_THREADS=8 {inputFilePath} {outputFilePath}";
+			try{
+				await ProcessExecution.ExecuteCommand(extractionArgument);
+			}
+			catch (Exception ex){
+				Console.WriteLine("Extraction error: " + ex.Message);
+			}
+		}
 		public static async Task Colorize(string inputFilePath, string outputFilePath, string colormapFilePath){
-			string argument = $"gdaldem color-relief -co NUM_THREADS=8 -of COG -co COMPRESS=DEFLATE -co RESAMPLING=BILINEAR -co OVERVIEWS=AUTO -co PREDICTOR=2 {inputFilePath} {colormapFilePath} {outputFilePath}";
+			string argument = $"gdaldem color-relief -co NUM_THREADS=8 -of COG -co COMPRESS=DEFLATE " +
+			                  $"-co RESAMPLING=BILINEAR -co OVERVIEWS=AUTO -co PREDICTOR=2 {inputFilePath} " +
+			                  $"{colormapFilePath} {outputFilePath}";
 			try{
 				await ProcessExecution.ExecuteCommand(argument);
 			}
 			catch (Exception ex){
 				Console.WriteLine("Colorizing error: " + ex.Message);
+			}
+		}
+
+		public static async Task ConvertToJson(string inputFilePath, string outputFilePath){
+			string temporaryFilePath = Path.Combine("./Data", Guid.NewGuid().ToString());
+			string argument1 = $"grib2json --names --data -o {temporaryFilePath}.json {inputFilePath}";
+			string argument2 = $"D:\\ProgramFiles\\Python\\python.exe D:\\Programming\\Projects\\WeatherApi\\WeatherApi\\Helper\\flip_lat.py {temporaryFilePath}.json {outputFilePath}";
+			try{
+				await ProcessExecution.ExecuteCommand(argument1);
+				await ProcessExecution.ExecuteCommand(argument2);
+				if (File.Exists(temporaryFilePath + ".json")) File.Delete(temporaryFilePath + ".json");
+			}
+			catch (Exception ex){
+				Console.WriteLine("Json conversion error: " + ex.Message);
+			}
+		}
+
+		public static async Task RegridResolution(string inputFilePath, string outputFilePath){
+			string argument = $"gdalwarp -r bilinear -tr 0.6 0.6 -tap {inputFilePath} {outputFilePath} -co DATA_ENCODING=COMPLEX_PACKING";
+			try{
+				await ProcessExecution.ExecuteCommand(argument);
+			}catch(Exception ex){
+				Console.WriteLine("Regridding error: " + ex.Message);
 			}
 		}
 
@@ -101,7 +125,6 @@ namespace WeatherApi.ProcessMethods {
 				$"-Headers {headers} " +
 				$"-Body '{Path.GetFullPath(inputFilePath)}' " +
 				$"-Credential {credential}";
-			
 			ProcessStartInfo processInfo = new ProcessStartInfo{
 				FileName = "powershell.exe",
 				Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{powerShellCommand}\"",

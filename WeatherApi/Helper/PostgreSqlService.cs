@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using NpgsqlTypes;
 using WeatherApi.ProcessMethods;
 
 namespace WeatherApi.Helper {
+	
 	public class PostgreSqlService {
 		private readonly string _connString;
 
@@ -27,7 +29,6 @@ namespace WeatherApi.Helper {
 						cmd.Parameters.AddWithValue("rasterData", NpgsqlTypes.NpgsqlDbType.Bytea, rasterData);
 						await cmd.ExecuteNonQueryAsync();
 					}
-
 					Console.WriteLine($"Inserted GeoTIFF data into {tableName} at {dateTimeStr}");
 				}
 			}
@@ -101,6 +102,7 @@ namespace WeatherApi.Helper {
 			}
 		}
 
+		
 		public string? GetData(string query){
 			try{
 				using (var conn = new NpgsqlConnection(_connString)){
