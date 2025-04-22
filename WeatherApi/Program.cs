@@ -14,6 +14,17 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton(new PostgreSqlService(builder.Configuration.GetConnectionString("PostgresqlConnection")));
 UrlService.SetConfiguration(builder.Configuration);
 
+var MyJsCrossOrigins = "_myLeafletJsOrigins";
+builder.Services.AddCors(options => {
+    options.AddPolicy(
+        name: MyJsCrossOrigins,
+        builder => {
+            builder.WithOrigins("http://127.0.0.1:5500")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -26,7 +37,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
+app.UseCors(MyJsCrossOrigins);
 app.MapControllers();
 
 PostgreSqlService dbService = new PostgreSqlService(builder.Configuration.GetConnectionString("PostgresqlConnection"));
