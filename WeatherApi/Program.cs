@@ -11,8 +11,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton(new PostgreSqlService(builder.Configuration.GetConnectionString("PostgresqlConnection")));
+
+var connString = builder.Configuration.GetConnectionString("PostgresqlConnection");
+builder.Services.AddSingleton(sp => new PostgreSqlService(connString));
 UrlService.SetConfiguration(builder.Configuration);
+
+builder.Services.AddHostedService<GeospatialProcessingService>();
 
 var MyJsCrossOrigins = "_myLeafletJsOrigins";
 builder.Services.AddCors(options => {
@@ -39,15 +43,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseCors(MyJsCrossOrigins);
 app.MapControllers();
-
-PostgreSqlService dbService = new PostgreSqlService(builder.Configuration.GetConnectionString("PostgresqlConnection"));
-GeospatialProcessingService geoService = new GeospatialProcessingService(dbService);
-try{
-    await geoService.DownloadAndProcessBatch();
-}
-catch (Exception e){
-    Console.WriteLine("GeoService Error: " + e.Message);
-}
 
 app.Run();
 

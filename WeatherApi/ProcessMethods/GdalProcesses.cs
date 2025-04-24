@@ -33,14 +33,9 @@ namespace WeatherApi.ProcessMethods {
 		}
 
 		public static async Task ConvertTifToProperSpatialRef(string inputFilePath, string outputFilePath){
-			string dataDir = "./Data";
-			string temporaryFilePath = Path.Combine(dataDir, Guid.NewGuid().ToString());
-			string argument1 = $"gdal_translate -a_srs EPSG:4326 {inputFilePath} {temporaryFilePath}.tif";
-			string argument2 = $"gdalwarp -s_srs EPSG:4326 -t_srs EPSG:3857 -co NUM_THREADS=ALL_CPUS {temporaryFilePath}.tif {outputFilePath}";
+			string argument = $"gdalwarp -s_srs EPSG:4326 -t_srs EPSG:3857 -co NUM_THREADS=ALL_CPUS {inputFilePath} {outputFilePath}";
 			try{
-				await ProcessExecution.ExecuteCommand(argument1);
-				await ProcessExecution.ExecuteCommand(argument2);
-				if(File.Exists(temporaryFilePath+".tif")) File.Delete(temporaryFilePath+".tif");
+				await ProcessExecution.ExecuteCommand(argument);
 			}
 			catch (Exception ex){
 				Console.WriteLine("Converting to correct spatial reference error: " + ex.Message);

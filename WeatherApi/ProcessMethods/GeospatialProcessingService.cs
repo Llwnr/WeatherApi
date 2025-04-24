@@ -4,13 +4,22 @@ using WeatherApi.Helper;
 
 namespace WeatherApi.ProcessMethods;
 
-public class GeospatialProcessingService{
+public class GeospatialProcessingService : BackgroundService{
     private readonly PostgreSqlService _dbService;
     private readonly string _tableName;
 
     public GeospatialProcessingService(PostgreSqlService service){
         _dbService = service;
         _tableName = "weather_raster";
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken){
+        try{
+            await DownloadAndProcessBatch();
+        }
+        catch (Exception ex){
+            Console.WriteLine("Error processing batch: " + ex.Message);
+        }
     }
 
     //Calculates number of files to download, uses UrlService to get url equivalent to the number and

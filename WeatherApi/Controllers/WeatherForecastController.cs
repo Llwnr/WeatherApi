@@ -14,45 +14,57 @@ public class WeatherForecastController : ControllerBase{
 
     [HttpGet("temperature")]
     public IActionResult GetTemp([FromQuery] double lat, [FromQuery] double lon, [FromQuery] string dateTimeStr){
-        DateTime dateTime = DateTime.Parse(dateTimeStr, null, System.Globalization.DateTimeStyles.RoundtripKind);
-        dateTime = dateTime.ToLocalTime();
-        string query = $@"SELECT ST_VALUE(rast, 2, ST_MakePoint({lon}, {lat})) 
-            FROM public.weather_raster
-            WHERE extract(hour from time) = {dateTime.Hour} AND extract(day from time) = {dateTime.Day};
-            ";
-        string? result = _dbService.GetData(query);
-        if (result == null){
+        try{
+            DateTime dateTime = DateTime.Parse(dateTimeStr, null, System.Globalization.DateTimeStyles.RoundtripKind);
+            dateTime = dateTime.ToLocalTime();
+            string query = $@"SELECT ST_VALUE(rast, 2, ST_MakePoint({lon}, {lat})) 
+                FROM public.weather_raster
+                WHERE extract(hour from time) = {dateTime.Hour} AND extract(day from time) = {dateTime.Day};
+                ";
+            string? result = _dbService.GetData(query);
+            if (result == null) return BadRequest();
+            return Ok(result);
+        }
+        catch (Exception ex){
+            Console.WriteLine("Error in getting temperature: " + ex.Message);
             return BadRequest();
         }
-        return Ok(_dbService.GetData(query));
     }
     [HttpGet("windspeed")]
     public IActionResult GetWindSpeed([FromQuery] double lat, [FromQuery] double lon, [FromQuery] string dateTimeStr){
-        DateTime dateTime = DateTime.Parse(dateTimeStr, null, System.Globalization.DateTimeStyles.RoundtripKind);
-        dateTime = dateTime.ToLocalTime();
-        string query = $@"SELECT ST_VALUE(rast, 1, ST_MakePoint({lon}, {lat})) 
-            FROM public.weather_raster
-            WHERE extract(hour from time) = {dateTime.Hour} AND extract(day from time) = {dateTime.Day};
-            ";
-        string? result = _dbService.GetData(query);
-        if (result == null){
+        try{
+            DateTime dateTime = DateTime.Parse(dateTimeStr, null, System.Globalization.DateTimeStyles.RoundtripKind);
+            dateTime = dateTime.ToLocalTime();
+            string query = $@"SELECT ST_VALUE(rast, 1, ST_MakePoint({lon}, {lat})) 
+                FROM public.weather_raster
+                WHERE extract(hour from time) = {dateTime.Hour} AND extract(day from time) = {dateTime.Day};
+                ";
+            string? result = _dbService.GetData(query);
+            if (result == null) return BadRequest();
+            return Ok(result);
+        }
+        catch (Exception ex){
+            Console.WriteLine("Error in getting temperature: " + ex.Message);
             return BadRequest();
         }
-        return Ok(_dbService.GetData(query));
     }
     [HttpGet("precipitation")]
     public IActionResult GetPrecipitation([FromQuery] double lat, [FromQuery] double lon, [FromQuery] string dateTimeStr){
-        DateTime dateTime = DateTime.Parse(dateTimeStr, null, System.Globalization.DateTimeStyles.RoundtripKind);
-        dateTime = dateTime.ToLocalTime();
-        string query = $@"SELECT ST_VALUE(rast, 3, ST_MakePoint({lon}, {lat})) 
-            FROM public.weather_raster
-            WHERE extract(hour from time) = {dateTime.Hour} AND extract(day from time) = {dateTime.Day};
-            ";
-        string? result = _dbService.GetData(query);
-        if (result == null){
+        try{
+            DateTime dateTime = DateTime.Parse(dateTimeStr, null, System.Globalization.DateTimeStyles.RoundtripKind);
+            dateTime = dateTime.ToLocalTime();
+            string query = $@"SELECT ST_VALUE(rast, 3, ST_MakePoint({lon}, {lat})) 
+                FROM public.weather_raster
+                WHERE extract(hour from time) = {dateTime.Hour} AND extract(day from time) = {dateTime.Day};
+                ";
+            string? result = _dbService.GetData(query);
+            if (result == null) return BadRequest();
+            return Ok(result);
+        }
+        catch (Exception ex){
+            Console.WriteLine("Error in getting temperature: " + ex.Message);
             return BadRequest();
         }
-        return Ok(_dbService.GetData(query));
     }
     
     [HttpGet("wind_animation")]
