@@ -1,8 +1,8 @@
-0      91 69 168  # Dark purple (0 to <8.33 m/s)
-8.33   115 198 199   # Light blue (8.33 to <16.67 m/s)
-16.67  239 243 142   # Medium blue-purple (16.67 to <25 m/s)
-24.99  228 123 109   # Medium blue-purple (end of range)
-33.32  153 61 106     # Light orange (end of range)
-41.66  82 11 104     # Orange (end of range)
-49.99  153 128 164     # Red (end of range)
-58.32  220 215 225    # Dark red (end of range)
+0      121 95 196
+8.33   146 225 226
+16.67  247 252 175
+24.99  246 150 136
+33.32  183 90 135
+41.66  115 40 135
+49.99  183 156 192
+58.32  239 234 244

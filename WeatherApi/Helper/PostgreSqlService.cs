@@ -22,11 +22,21 @@ namespace WeatherApi.Helper {
 					// Insert the raster data
 					string dateTimeStr = time.ToString("yyyy-MM-dd HH:mm:ss");
 					string insertQuery = $@"
-		                INSERT INTO public.{tableName} (time, rast)
-		                VALUES (@time, ST_FromGDALRaster(@rasterData))";
+	                    INSERT INTO public.{tableName} (time, rast)
+	                    SELECT @time, tile.rast
+	                    FROM (
+	                        SELECT ST_Tile(
+	                            ST_FromGDALRaster(@rasterData),
+	                            @tileWidth,
+	                            @tileHeight,
+	                            TRUE -- padwithnodata
+	                        ) AS rast
+	                    ) AS tile";
 					using (var cmd = new NpgsqlCommand(insertQuery, conn)){
 						cmd.Parameters.AddWithValue("time", NpgsqlTypes.NpgsqlDbType.Timestamp, time.ToLocalTime());
 						cmd.Parameters.AddWithValue("rasterData", NpgsqlTypes.NpgsqlDbType.Bytea, rasterData);
+						cmd.Parameters.AddWithValue("tileWidth", NpgsqlTypes.NpgsqlDbType.Integer, 256);
+						cmd.Parameters.AddWithValue("tileHeight", NpgsqlTypes.NpgsqlDbType.Integer, 256);
 						await cmd.ExecuteNonQueryAsync();
 					}
 					Console.WriteLine($"Inserted GeoTIFF data into {tableName} at {dateTimeStr}");

@@ -59,6 +59,8 @@ public class WeatherForecastController : ControllerBase{
                 ";
             string? result = _dbService.GetData(query);
             if (result == null) return BadRequest();
+            
+            result = (double.Parse(result) * 3750).ToString();
             return Ok(result);
         }
         catch (Exception ex){
