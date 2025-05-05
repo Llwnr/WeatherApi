@@ -44,7 +44,7 @@ public class GeospatialProcessingService : BackgroundService{
                     await DownloadAndProcess(pair.First, pair.Second);
                 });
             sw.Stop();
-            Console.WriteLine("Time taken: " + sw.ElapsedMilliseconds + "ms");
+            Console.WriteLine("Time taken: " + sw.ElapsedMilliseconds*0.001 + " seconds");
         }
         catch (Exception ex){
             Console.WriteLine($"Batch processing failed: {ex.Message}");
@@ -138,11 +138,8 @@ public class GeospatialProcessingService : BackgroundService{
     public async Task<DateTime> GetStartingForecastTime(){
         DateTime? latestForecastData = await GetLatestForecastTimestamp(_tableName);
         DateTime currTime = DateTime.UtcNow.Subtract(TimeSpan.FromHours(1));
+        //Always start with the latest data in database, if no data found then start with current time
         DateTime startTime = latestForecastData ?? currTime;
-        //Always use the latest time data
-        if (DateTime.Compare(currTime, startTime) == 1){
-            startTime = currTime;
-        }
         return startTime;
         
         async Task<DateTime?> GetLatestForecastTimestamp(string tableName){
@@ -160,7 +157,7 @@ public class GeospatialProcessingService : BackgroundService{
                     dateUTC = dateUTC.ToUniversalTime();
                 }
                 dateUTC = DateTime.SpecifyKind(dateUTC, DateTimeKind.Utc);
-                Console.WriteLine(dateUTC);
+                Console.WriteLine("Latest date currently stored: " + dateUTC);
                 return dateUTC;
             }
             catch (Exception ex){
@@ -185,7 +182,6 @@ public class GeospatialProcessingService : BackgroundService{
         long currentTimestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
         
         int hoursDifference = (int)Math.Ceiling((latestDatabaseTimestamp - currentTimestamp) / 3600.0);
-        
         if (hoursDifference < totalForecastHours){
             int filesToDownload = Math.Min(totalForecastHours - hoursDifference, totalForecastHours);
             Console.WriteLine($"Forecast data is incomplete. Downloading {filesToDownload} additional files.");

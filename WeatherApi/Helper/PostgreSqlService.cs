@@ -1,8 +1,5 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using Npgsql;
-using NpgsqlTypes;
-using WeatherApi.ProcessMethods;
+﻿using Npgsql;
+using Dapper;
 
 namespace WeatherApi.Helper {
 	
@@ -134,6 +131,20 @@ namespace WeatherApi.Helper {
 				Console.WriteLine("Database query error: " + e.Message);
 			}
 			return null;
+		}
+		
+		public List<T> GetData<T>(string query){
+			try{
+				using (var conn = new NpgsqlConnection(_connString)){
+					conn.Open();
+					return conn.Query<T>(query).ToList();
+				}
+			}
+			catch (Exception e){
+				Console.WriteLine("Database query error: " + e.Message);
+			}
+
+			return new();
 		}
 	}
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using WeatherApi.Helper;
+using WeatherApi.Model;
 
 namespace WeatherApi.Controllers;
 
@@ -61,6 +62,29 @@ public class WeatherForecastController : ControllerBase{
             if (result == null) return BadRequest();
             
             result = (double.Parse(result) * 3750).ToString();
+            return Ok(result);
+        }
+        catch (Exception ex){
+            Console.WriteLine("Error in getting temperature: " + ex.Message);
+            return BadRequest();
+        }
+    }
+    [HttpGet("weather_details")]
+    public IActionResult GetDetailedData([FromQuery] double lat, [FromQuery] double lon, [FromQuery] string dateTimeStr, [FromQuery] string dataCoverage = null){
+        try{
+            DateTime dateTime = DateTime.Parse(dateTimeStr, null, System.Globalization.DateTimeStyles.RoundtripKind);
+            dateTime = dateTime.ToLocalTime();
+            string query = "";
+            if(String.IsNullOrEmpty(dataCoverage)) query = QueryConstraints.GetCurrentHourlyTemperatureData(lat, lon, dateTime);
+            else if (dataCoverage == "avg"){
+                query = QueryConstraints.GetDailyAverageTemperatureDataOfAWeek(lat, lon, dateTime);
+            }
+
+            List<WeatherData> weatherDatas = _dbService.GetData<WeatherData>(query);
+            var result = new{
+                time = weatherDatas.Select(data => data.Time).ToList(),
+                value = weatherDatas.Select(data => data.Value).ToList()
+            };
             return Ok(result);
         }
         catch (Exception ex){
