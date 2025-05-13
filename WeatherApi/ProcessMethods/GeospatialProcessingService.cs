@@ -17,7 +17,7 @@ public class GeospatialProcessingService : BackgroundService{
     protected override async Task ExecuteAsync(CancellationToken stoppingToken){
         try{
             await DownloadAndProcessBatch();
-            // await ProcessExistingFilesBatch();
+            // await ProcessExistingFiles();
         }
         catch (Exception ex){
             Console.WriteLine("Error processing batch: " + ex.Message);
@@ -35,7 +35,9 @@ public class GeospatialProcessingService : BackgroundService{
             List<string> filePaths = new List<string>();
             foreach (var url in urls){
                 filePaths.Add("./Data");
+                Console.WriteLine(url);
             }
+            
             //After processing, insert to postGIS in bulk
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -137,9 +139,9 @@ public class GeospatialProcessingService : BackgroundService{
     //Gets the starting forecast datetime to start downloading from
     public async Task<DateTime> GetStartingForecastTime(){
         DateTime? latestForecastData = await GetLatestForecastTimestamp(_tableName);
-        DateTime currTime = DateTime.UtcNow.Subtract(TimeSpan.FromHours(1));
+        DateTime firstHour = DateTime.Today;
         //Always start with the latest data in database, if no data found then start with current time
-        DateTime startTime = latestForecastData ?? currTime;
+        DateTime startTime = latestForecastData ?? firstHour;
         return startTime;
         
         async Task<DateTime?> GetLatestForecastTimestamp(string tableName){
@@ -157,7 +159,7 @@ public class GeospatialProcessingService : BackgroundService{
                     dateUTC = dateUTC.ToUniversalTime();
                 }
                 dateUTC = DateTime.SpecifyKind(dateUTC, DateTimeKind.Utc);
-                Console.WriteLine("Latest date currently stored: " + dateUTC);
+                Console.WriteLine("Latest date stored: " + dateUTC);
                 return dateUTC;
             }
             catch (Exception ex){
@@ -169,24 +171,25 @@ public class GeospatialProcessingService : BackgroundService{
     
     // If date in database is outdated, returns number of future forecast data to download
     // Always tries to have forecast data x hours from current time
-    async Task<int> GetNumOfFilesToDownload(DateTime? latestForecastDate){
+    async Task<int> GetNumOfFilesToDownload(DateTime latestForecastDate){
         int totalForecastHours = UrlService.NumOfFiles;
 
-        //If no data found, download full number of files
-        if (latestForecastDate == null){
-            Console.WriteLine($"No existing forecast data. Downloading {totalForecastHours + 1} files.");
-            return totalForecastHours+1;
-        }
+        int hoursDifference = (int)Math.Floor((DateTime.Today.AddDays(1) - latestForecastDate).TotalHours);
+        string logMessage = hoursDifference <= 0
+            ? "All data for today has been processed!"
+            : $"Forecast data incomplete! Downloading {hoursDifference} number of files";
+        Console.WriteLine(logMessage);
+        return hoursDifference;
         
-        long latestDatabaseTimestamp = ((DateTimeOffset)latestForecastDate).ToUnixTimeSeconds();
-        long currentTimestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
-        
-        int hoursDifference = (int)Math.Ceiling((latestDatabaseTimestamp - currentTimestamp) / 3600.0);
-        if (hoursDifference < totalForecastHours){
-            int filesToDownload = Math.Min(totalForecastHours - hoursDifference, totalForecastHours);
-            Console.WriteLine($"Forecast data is incomplete. Downloading {filesToDownload} additional files.");
-            return filesToDownload;
-        }
+        // long latestDatabaseTimestamp = ((DateTimeOffset)latestForecastDate).ToUnixTimeSeconds();
+        // long currentTimestamp = ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds();
+        //
+        // int hoursDifference = (int)Math.Ceiling((latestDatabaseTimestamp - currentTimestamp) / 3600.0);
+        // if (hoursDifference < totalForecastHours){
+        //     int filesToDownload = Math.Min(totalForecastHours - hoursDifference, totalForecastHours);
+        //     Console.WriteLine($"Forecast data is incomplete. Downloading {filesToDownload} additional files.");
+        //     return filesToDownload;
+        // }
         
         Console.WriteLine("No need to download");
         await Task.Yield();
@@ -230,7 +233,9 @@ public class GeospatialProcessingService : BackgroundService{
         return DateTime.SpecifyKind(result, DateTimeKind.Utc);
     }
 
-    public async Task ProcessExistingFilesBatch(){
+    //If gribFilePath is null then process all files in .Data folder
+    //Otherwise only process the provided file
+    public async Task ProcessExistingFiles(string? gribFileName = null){
         try{
             await _dbService.EnsureTableExists(_tableName);
             string dataDirectory = "./Data";
@@ -240,15 +245,19 @@ public class GeospatialProcessingService : BackgroundService{
                  Console.WriteLine($"Data directory not found: {dataDirectory}");
                  return;
             }
-
-            var gribFiles = Directory.GetFiles(dataDirectory, "data_*.grib2");
-
+    
+            var gribFiles = Directory.GetFiles(dataDirectory, "data_*.grib2").ToList();
+            if (!String.IsNullOrEmpty(gribFileName)){
+                gribFiles.Clear();
+                gribFiles.Add(Path.Combine(dataDirectory, gribFileName));
+            }
+            
             if (gribFiles == null || !gribFiles.Any()){
                 Console.WriteLine($"No .grib2 files found in {dataDirectory}");
                 return;
             }
 
-            Console.WriteLine($"Found {gribFiles.Length} files to process.");
+            Console.WriteLine($"Found {gribFiles.Count} files to process.");
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -267,6 +276,7 @@ public class GeospatialProcessingService : BackgroundService{
                     try{
                         time = ExtractDateTimeFromFileName(gribFilePath);
                         timestampName = time.ToString("yyyyMMdd_HHmmss");
+                        Console.WriteLine("File's time: " + timestampName);
                     }
                     catch (ArgumentException ex){
                         Console.WriteLine($"Skipping file due to invalid name format: {gribFilePath}. Error: {ex.Message}");
@@ -277,7 +287,7 @@ public class GeospatialProcessingService : BackgroundService{
                          Console.WriteLine($"Error extracting time from {gribFilePath}: {ex.Message}");
                          return;
                     }
-
+                    
                     string tifFilePath = Path.Combine(filePath, $"geoTiff_{timestampName}.tif");
                     string epsgFilePath = Path.Combine(filePath, $"epsgGeoTiff_{timestampName}.tif");
 

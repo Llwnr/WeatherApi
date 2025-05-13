@@ -23,7 +23,7 @@ namespace WeatherApi.ProcessMethods {
 		}
 
 		public static async Task ConvertToGeoTiff(string inputFilePath, string outputFilePath) {
-			string argument = $"gdal_translate -of GTiff -r cubicspline -tr 0.24 0.24 -co NUM_THREADS=ALL_CPUS {inputFilePath} {outputFilePath}";
+			string argument = $"gdal_translate -of GTiff -r bilinear -tr 0.24 0.24 -co NUM_THREADS=ALL_CPUS {inputFilePath} {outputFilePath}";
 			try{
 				await ProcessExecution.ExecuteCommand(argument);
 			}
@@ -101,7 +101,7 @@ namespace WeatherApi.ProcessMethods {
 		}
 
 		public static async Task RegridResolution(string inputFilePath, string outputFilePath){
-			string argument = $"gdalwarp -r bilinear -tr 0.6 0.6 -tap {inputFilePath} {outputFilePath} -co DATA_ENCODING=COMPLEX_PACKING";
+			string argument = $"gdalwarp -r bilinear -tr 0.5 0.5 -tap {inputFilePath} {outputFilePath} -co DATA_ENCODING=COMPLEX_PACKING";
 			try{
 				await ProcessExecution.ExecuteCommand(argument);
 			}catch(Exception ex){

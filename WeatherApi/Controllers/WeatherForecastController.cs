@@ -36,7 +36,7 @@ public class WeatherForecastController : ControllerBase{
         try{
             DateTime dateTime = DateTime.Parse(dateTimeStr, null, System.Globalization.DateTimeStyles.RoundtripKind);
             dateTime = dateTime.ToLocalTime();
-            string query = $@"SELECT ST_VALUE(rast, 1, ST_MakePoint({lon}, {lat})) 
+            string query = $@"SELECT ST_VALUE(rast, 1, ST_MakePoint({lon}, {lat}))*3.6 
                 FROM public.weather_raster
                 WHERE extract(hour from time) = {dateTime.Hour} AND extract(day from time) = {dateTime.Day};
                 ";
@@ -75,9 +75,13 @@ public class WeatherForecastController : ControllerBase{
             DateTime dateTime = DateTime.Parse(dateTimeStr, null, System.Globalization.DateTimeStyles.RoundtripKind);
             dateTime = dateTime.ToLocalTime();
             string query = "";
-            if(String.IsNullOrEmpty(dataCoverage)) query = QueryConstraints.GetCurrentHourlyTemperatureData(lat, lon, dateTime);
+            if(String.IsNullOrEmpty(dataCoverage)) query = QueryConstants.GetCurrentHourlyTemperatureData(lat, lon, dateTime);
             else if (dataCoverage == "avg"){
-                query = QueryConstraints.GetDailyAverageTemperatureDataOfAWeek(lat, lon, dateTime);
+                query = QueryConstants.GetDailyAverageTemperatureDataOfAWeek(lat, lon, dateTime);
+            }else if (dataCoverage == "rainHourly"){
+                query = QueryConstants.GetTotalRainAmount(lat, lon, dateTime);
+            }else if (dataCoverage == "rainAvg"){
+                query = QueryConstants.GetDailyAverageRain(lat, lon, dateTime);
             }
 
             List<WeatherData> weatherDatas = _dbService.GetData<WeatherData>(query);
@@ -116,6 +120,29 @@ public class WeatherForecastController : ControllerBase{
         catch (Exception ex){
             Console.WriteLine("Error: " + ex.Message);
             return StatusCode(500, new { Error = "An internal server error occurred.", Details = ex.Message });
+        }
+    }
+
+    [HttpGet("time_range")]
+    public async Task<IActionResult> GetTimeRange(){
+        //return the min and max time for datas that u have
+        try{
+            string queryMax = $@"SELECT MAX(time) FROM weather_raster";
+            string? resultMax = _dbService.GetData(queryMax);
+            if (resultMax == null) return BadRequest();
+            
+            string queryMin = $@"SELECT MIN(time) FROM weather_raster";
+            string? resultMin = _dbService.GetData(queryMin);
+            if (resultMin == null) return BadRequest();
+            
+            return Ok(new {
+                Max = resultMax,
+                Min = resultMin
+            });
+        }
+        catch (Exception ex){
+            Console.WriteLine("Error in getting temperature: " + ex.Message);
+            return BadRequest();
         }
     }
 }
