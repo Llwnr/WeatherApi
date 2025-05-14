@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Time Picker</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            background-color: #f0a500;
+            font-family: Consolas;
+        }
+
+        .datetime-picker {
+            display: flex;
+            position: absolute;
+            left: 50%;
+            bottom: 5%;
+            translate: -50%;
+            align-items: center;
+            background-color: #6f4e37;
+            padding: 10px 20px;
+            border-radius: 15px;
+            color: #f0f0f0;
+            gap: -50px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            user-select: none; 
+            font-size: 0.8rem;
+        }
+
+        .control-button, .arrow-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            line-height: 1;
+            padding: 5px;
+        }
+        .control-button:hover, .arrow-button:hover {
+            opacity: 0.8;
+        }
+         .control-button:active, .arrow-button:active {
+            transform: scale(0.8);
+        }
+
+        .display-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px; 
+        }
+
+        .value {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin: 2px 0;
+            text-align: center;
+        }
+
+        .separator {
+            font-size: 1.4em;
+            font-weight: bold;
+            align-self: center;
+            padding-bottom: 18px; 
+            margin-top: 8%;
+        }
+
+        .arrow-button {
+            font-size: 1.2em; 
+            padding: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="datetime-picker">
+    <div class="display-section">
+        <div class="unit">
+            <button class="arrow-button up" data-unit="date">▲</button>
+            <span class="value" id="date-display">14 Apr</span>
+            <button class="arrow-button down" data-unit="date">▼</button>
+        </div>
+        <div class="unit">
+            <button class="arrow-button up slanted-right" data-unit="hour">▲</button>
+            <div class="time-block">
+                <span class="value" id="hour-display">10</span>
+                <span class="separator">:</span>
+                <span class="value" id="minute-display">00</span>
+            </div>
+            <button class="arrow-button down slanted-right" data-unit="hour">▼</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const dateDisplay = document.getElementById('date-display');
+    const hourDisplay = document.getElementById('hour-display');
+    const minuteDisplay = document.getElementById('minute-display');
+    const picker = document.querySelector('.datetime-picker');
+
+    let currentDate = new Date(2024, 3, 14, 10, 0); //Year month day hour minute
+
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    function updateDisplay() {
+        let localeDate = new Date(currentDate.getTime() - currentDate.getTimezoneOffset()*60000);
+        console.log(localeDate);
+        const day = localeDate.getDate();
+        const month = monthNames[localeDate.getMonth()];
+        const hours = String(localeDate.getHours()).padStart(2, '0');
+        const minutes = String(localeDate.getMinutes()).padStart(2, '0');
+
+        dateDisplay.textContent = `${day} ${month}`;
+        hourDisplay.textContent = hours;
+        minuteDisplay.textContent = minutes;
+    }
+
+    picker.addEventListener('click', (event) => {
+        if (!event.target.matches('.arrow-button')) return;
+
+        const button = event.target;
+        const unit = button.dataset.unit;
+        const direction = button.classList.contains('up') ? 1 : -1;
+
+        switch (unit) {
+            case 'date':
+                currentDate.setDate(currentDate.getDate() + direction);
+                break;
+            case 'hour':
+                currentDate.setHours(currentDate.getHours() + direction);
+                break;
+        }
+        updateDisplay();
+    });
+
+    updateDisplay();
+</script>
+
+</body>
+</html>

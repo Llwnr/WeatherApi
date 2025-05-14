@@ -1,0 +1,149 @@
+html, body{
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+#map{
+    height: 600px;
+    width: 1280px;
+    cursor: pointer;
+}
+.wms-multiply-overlay {
+    mix-blend-mode: multiply;
+}
+.basemap {
+    filter: brightness(1) contrast(1.2);
+}
+/* Ensure label pane is above others and doesn't block clicks */
+.leaflet-labels-pane{
+    pointer-events: none;
+    z-index: 650 !important; 
+}
+.data-displayer{
+    min-width: 30px;
+    min-height: 20px;
+    z-index: 600 !important;
+    position: absolute;
+    top: 0;
+    left: 300px;
+    margin-top: -12px;
+    background-color: rgb(50, 50, 50);
+    translate: -50% -50%;
+    color: white;
+    padding: 3px 8px 3px 5px;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 3px;
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: -2px;
+    display: none;
+}
+.chart-displayer{
+    height: 300px;
+    width: 600px;
+    position: absolute;
+    left: 36px;
+    top: 10px;
+    z-index: 600 !important;
+    pointer-events: none;
+    display: none;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+}
+.js-plotly-plot .plotly .nsewdrag {
+  cursor: pointer !important;
+}
+.color-index{
+    color: white;
+    font-family: 'Poppins';
+    font-size: 12;
+    font-weight:bolder;
+    -webkit-text-stroke: 1px;
+    -webkit-text-stroke-color: black;
+    position: absolute;
+    align-items:end;
+    display: flex;
+    justify-content: space-around;
+    border: 1px solid white;
+    bottom: 5px;
+    left: 2px;
+    width: 360px;
+    height: 20px;
+    border-radius: 3px;
+    z-index: 650 !important;
+}
+.color-index span{
+    margin-bottom: -2px;
+}
+.temperature{
+    background: linear-gradient( 
+        90deg,
+        rgb(141, 97, 185),
+        rgb(141, 97, 185),
+        rgb(70, 49, 151),
+        rgb(56, 98, 173),
+        rgb(77, 161, 198),
+        rgb(143, 233, 143),
+        rgb(250, 232, 105),
+        rgb(247, 135, 39),
+        rgb(215, 37, 44),
+        rgb(96, 1, 49)
+        );
+}
+.wind-speed{
+    background: linear-gradient(
+        90deg,
+        rgb(121, 95, 196),
+        rgb(121, 95, 196),
+        rgb(121, 95, 196),
+        rgb(146, 225, 226),
+        rgb(247, 252, 175),
+        rgb(247, 130, 106),
+        rgb(165, 53, 36)
+        );
+    width: 240px;
+}
+.precipitation{
+    background: linear-gradient(
+        90deg,
+        rgb(255, 255, 255),
+        rgb(160, 240, 240),
+        rgb(0, 200, 255),
+        rgb(0, 150, 255),
+        rgb(255, 170, 0),
+        rgb(255, 50, 0)
+        );
+    width: 240px;
+}
+.graph-opener{
+    background-color: rgb(255, 255, 255);
+    border-radius: 5px;
+    color: #ff3c00;
+    border: none;
+    font-family: 'Poppins';
+    margin: auto;
+}
+.graph-btn {
+    padding: 6px 12px;
+    margin-right: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    /* color: rgb(255, 94, 40); */
+    border: none;
+    /* border-radius: 6px; */
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 80px;
+}
+
+.graph-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.graph-btn:focus{
+    background-color: rgba(255, 255, 255, 0.8);
+    /* color: white; */
+}

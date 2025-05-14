@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Data Visualization</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./leaflet.css" />
+    <script src="./leaflet.js"></script>
+    <link rel="stylesheet" href="./leaflet-velocity.css" />
+    <script src="./leaflet-velocity.js"></script>
+    <link rel="stylesheet" href="./timeslider.css" />
+    <link rel="stylesheet" href="./style.css"/>
+
+    <script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8"></script>
+
+    <script src="https://unpkg.com/esri-leaflet/dist/esri-leaflet.js"></script>
+    <script src="https://unpkg.com/esri-leaflet-vector@4/dist/esri-leaflet-vector.js"></script>
+    
+    <link href='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css' rel='stylesheet' />
+    <script src='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js'></script>
+    <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@latest/leaflet-maplibre-gl.js"></script>
+</head>
+<body>
+    <div class="data-displayer" id="displayer">
+        <span id="displayer-text"></span><br>
+        <button id="open-graph" style="cursor: pointer" class="graph-opener">Graph</button>
+    </div>
+    <div class="chart-displayer" id="chart">
+        <button id="daily-graph" style="position: absolute; top: 0;" class="graph-btn">Daily</button>
+        <button id="avg-graph" style="position: absolute; top: 0; left: 80px" class="graph-btn">Average</button>
+    </div>
+    <div class="datetime-picker">
+        <div class="display-section">
+            <div class="unit">
+                <button class="arrow-button up" data-unit="date">▲</button>
+                <span class="value" id="date-display">Loading...</span>
+                <button class="arrow-button down" data-unit="date">▼</button>
+            </div>
+            <div class="unit">
+                <button class="arrow-button up slanted-right" data-unit="hour">▲</button>
+                <div class="time-block">
+                    <span class="value" id="hour-display">0</span>
+                    <span class="separator">:</span>
+                    <span class="value" id="minute-display">0</span>
+                </div>
+                <button class="arrow-button down slanted-right" data-unit="hour">▼</button>
+            </div>
+        </div>
+    </div>
+    <div class="color-index temperature" id="color-index">
+        <span>°C</span>
+        <span>-30</span>
+        <span>-20</span>
+        <span>-10</span>
+        <span>0</span>
+        <span>10</span>
+        <span>20</span>
+        <span>30</span>
+        <span>40</span>
+        <span>50</span>
+    </div>
+    <div id="map"></div>
+    <script src="./timeslider.js"></script>
+    
+    <script src="./main.js" type="module"></script>
+    <script src="./weatherDataDisplay.js" type="module"></script>
+    <script src="./chart.js" type="module"></script>
+    <script src="./colorIndex.js" type="module"></script>
+</body>
+</html>

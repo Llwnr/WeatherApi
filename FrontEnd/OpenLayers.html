@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenLayers WMS Time Test with Black Outlines</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.3.0/ol.css">
+    <style>
+        #map {
+            width: 100%;
+        }
+        #time-control {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="time-control">
+        <label for="time-slider">Select Time: </label>
+        <input type="range" id="time-slider" min="0" max="24" value="0">
+        <span id="time-display"></span>
+
+        <span id="type-selector">
+            <select>
+                <option value="temperature_mosaic">Temperature</option>
+                <option value="windgust_mosaic">Wind Speed</option>
+                <option value="precipitation_mosaic">Precipitation(Rain)</option>
+            </select>
+        </span>
+    </div>
+    
+    <div id="map" style="height: 700px;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ol@v7.3.0/dist/ol.js"></script>
+    <script>
+        // Define time range 24 step
+        const timeSteps = [];
+        let start = new Date('2025-04-27T06:00:00Z');
+        for (let i = 0; i < 50; i++) {
+            let time = new Date(start.getTime() + i * 3600000);
+            timeSteps.push(time.toISOString());
+        }
+
+        // Base OSM layer
+        const normalLayer = new ol.layer.Tile({
+            source: new ol.source.OSM({
+                attributions:
+                    'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
+                    'rest/services/World_Topo_Map/MapServer">ArcGIS</a>',
+                url:
+                    'https://server.arcgisonline.com/ArcGIS/rest/services/' +
+                    'World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+            })
+        });
+
+        // WMS layer for temperature/wind
+        const wmsLayer = new ol.layer.Tile({
+            source: new ol.source.TileWMS({
+                url: 'http://localhost:8080/geoserver/wms',
+                params: {
+                    'LAYERS': 'ne:temperature_mosaic', // Replace with 'ne:wind_mosaic' for wind
+                    'TILED': true,
+                    'TIME': timeSteps[0]
+                },
+                serverType: 'geoserver',
+            }),
+            opacity: 1 
+        });
+
+        const apiKey = 'BztemuOpgGUWtcRkmnpT';
+        const tileUrl = `https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=${apiKey}`;
+
+        const outlineStyle = new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'black', 
+                width: 0.5
+            }),
+        });
+
+        const vectorTileLayer = new ol.layer.VectorTile({
+            declutter: true, 
+            source: new ol.source.VectorTile({
+                format: new ol.format.MVT(),
+                url: tileUrl,
+                maxZoom: 14 
+            }),
+            style: function(feature) {
+                if (feature.get('layer') === 'boundary' && feature.get('admin_level') === 2) {
+                    return outlineStyle; // Apply the defined black stroke style
+                }
+                return null;
+            },
+            opacity: 0.7,
+        });
+
+        // Initialize map with layers in correct order
+        const map = new ol.Map({
+            target: 'map',
+            layers: [normalLayer, wmsLayer, vectorTileLayer], // Base, colormap, outlines
+            view: new ol.View({
+                center: ol.proj.fromLonLat([83, 27]),
+                zoom: 5,
+                maxZoom: 10,
+                minZoom: 1
+            })
+        });
+
+        // How layers will be rendered over each other
+        wmsLayer.on('prerender', function(event) {
+            const ctx = event.context;
+            ctx.globalCompositeOperation = 'multiply'; 
+        });
+
+        wmsLayer.on('postrender', function(event) {
+            const ctx = event.context;
+            ctx.globalCompositeOperation = 'source-over';
+        });
+
+        // Time slider logic
+        const slider = document.getElementById('time-slider');
+        const timeDisplay = document.getElementById('time-display');
+        timeDisplay.textContent = new Date(timeSteps[0]).toLocaleString();
+
+        slider.oninput = function() {
+            const index = parseInt(this.value);
+            timeDisplay.textContent = new Date(timeSteps[index]).toLocaleString();
+        };
+
+        slider.onchange = function() { updateMap(); };
+
+        // Update map with selected time
+        function updateMap() {
+            const index = parseInt(slider.value);
+            wmsLayer.getSource().updateParams({'TIME': timeSteps[index]});
+        }
+
+        const typeSelector = document.getElementById('type-selector');
+        typeSelector.querySelector('select').onchange = function(){
+            let selectedValue = this.value; // Get selected option value
+            updateMosaic(selectedValue);
+        }
+
+        function updateMosaic(layerName) {
+            console.log(layerName);
+            wmsLayer.getSource().updateParams({
+                'LAYERS': `ne:${layerName}` // Dynamically update layer
+            });
+        }
+    </script>
+</body>
+</html>
