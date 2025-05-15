@@ -11,9 +11,14 @@ Resolution is 0.25\
 
 This project uses C# to automate weather data processing and store it in GeoServer locally, leaflet.js to render tiles from GeoServer.
 
-## Setup Instructions: \
-You need to have a PostGIS database and set it up in C# backend, in the appsettings.json file's connection string.\
-You need to link GeoServer's stores to the folders where colorized temperature, wind and precipitation are stored. Make sure to have the store names be the same as the one used in FrontEnd/main.js where GeoServer's api is called.\
+## Setup Instructions(Before running the C# program): <br/>
+You need to have a PostGIS database and set it up in C# backend, in the appsettings.json file's connection string.<br/><br/>
+You need to link GeoServer's stores to the folders where colorized temperature, wind and precipitation are stored. <br>
+ - Go to WeatherApi/Config/Backup and Copy all the folders.
+ - Next, go to WeatherApi and create a new folder called "Data".
+ - Paste the recently copied folders inside the Data folder.
+ - Open GeoServer and create 3 stores. Each for temperature, wind and precipitation.
+ - Link the stores to each folder. This connects GeoServer to use your processed colorized image.
 In the same FrontEnd/main.js folder, make sure to put maptiler api in case you want city borders/ boundaries.\
 That's all! \
 
